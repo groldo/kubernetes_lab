@@ -1,0 +1,4 @@
+---
+- name: docker-role
+  src: https://github.com/groldo/docker-role.git
+  version: master

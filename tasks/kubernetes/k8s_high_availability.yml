@@ -1,0 +1,46 @@
+---
+- name: enable ip nonlocal bind
+  become: true
+  ansible.posix.sysctl:
+    name: "net.ipv4.ip_nonlocal_bind"
+    value: "1"
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/99-haproxy.conf
+
+- name: create group for keepalived
+  become: true
+  group:
+    name: keepalived_script
+    system: true
+
+- name: create user for keepalived
+  become: true
+  user:
+    name: keepalived_script
+    system: true
+    shell: /sbin/nologin
+    group: keepalived_script
+    create_home: false
+
+- name: install haproxy & keepalived
+  become: true
+  apt:
+    name:
+      - keepalived
+      - haproxy
+
+- name: template ha services
+  become: true
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0600
+  loop:
+    - src: templates/kubernetes/keepalived.conf.j2
+      dest: /etc/keepalived/keepalived.conf
+    - src: templates/kubernetes/haproxy.cfg.j2
+      dest: /etc/haproxy/haproxy.cfg
+  notify:
+    - restart haproxy
+    - restart keepalived

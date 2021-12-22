@@ -1,0 +1,5 @@
+server = "https://{{ all_all__docker_registry }}"
+
+[host."https://{{ all_all__docker_registry }}"]
+  capabilities = ["pull", "resolve", "push"]
+  ca = "ca.crt"

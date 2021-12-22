@@ -1,0 +1,33 @@
+---
+- name: add "google cloud packages" gpg key
+  become: true
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: "Add kubernetes source list (Ubuntu)"
+  become: true
+  apt_repository:
+    repo: "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+    # repo: "deb http://apt.kubernetes.io/ kubernetes-{{ ansible_distribution_release }} main" focal läuft nicht
+    state: present
+    filename: "kubernetes"
+
+- name: update cache install kubernetes binaries
+  become: true
+  apt:
+    pkg:
+      - kubelet
+      - kubeadm
+      - kubectl
+    update_cache: true
+
+- name: set k8 binaries on hold
+  become: true
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl

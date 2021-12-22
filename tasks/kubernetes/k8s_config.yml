@@ -1,0 +1,36 @@
+---
+- name: template kubernetes services
+  become: true
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0600
+  loop:
+    - src: templates/kubernetes/init-config.yaml.j2
+      dest: /etc/kubernetes/init-config.yaml
+
+- name: copy config
+  become: true
+  copy:
+    src: files/kubernetes/audit.yaml
+    dest: /etc/kubernetes
+    mode: 0755
+
+- name: ensure pki dir exists
+  become: true
+  file:
+    path: /etc/kubernetes/pki
+    state: directory
+    mode: 0755
+
+- name: copy certificates
+  become: true
+  copy:
+    src: "{{ item.src }}"
+    dest: "/etc/kubernetes/pki"
+    mode: "{{ item.mode }}"
+  loop:
+    - src: certs/ca.crt
+      mode: "0644"
+    - src: certs/ca.key
+      mode: "0600"

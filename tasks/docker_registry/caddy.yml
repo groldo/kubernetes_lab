@@ -1,0 +1,15 @@
+---
+- name: create caddy data dir
+  file:
+    path: "{{ caddy_project_dir }}"
+    state: directory
+
+- name: ensure download-server is started
+  docker_container:
+    name: "download-server"
+    image: caddy
+    state: started
+    ports:
+      - "80:80"
+    volumes:
+      - "{{ caddy_project_dir }}:/usr/share/caddy:ro"

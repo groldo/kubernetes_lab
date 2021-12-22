@@ -1,0 +1,30 @@
+---
+- name: restart docker daemon
+  become: true
+  systemd:
+    service: docker
+    state: restarted
+
+- name: restart containerd
+  become: true
+  systemd:
+    name: containerd
+    daemon_reload: true
+    state: restarted
+    enabled: true
+
+- name: restart haproxy
+  become: true
+  systemd:
+    name: haproxy
+    daemon_reload: true
+    state: restarted
+    enabled: true
+
+- name: restart keepalived
+  become: true
+  systemd:
+    name: keepalived
+    daemon_reload: true
+    state: restarted
+    enabled: true
