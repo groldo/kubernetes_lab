@@ -1,0 +1,81 @@
+---
+- name: "ensure directory for {{ item.common_name }} on localhost"
+  file:
+    path: "certs/{{ item.common_name }}"
+    state: directory
+    mode: 0755
+  delegate_to: localhost
+  run_once: true
+  tags: certificates
+
+- name: "check if key for {{ item.common_name }} is present on localhost"
+  stat:
+    path: "certs/{{ item.common_name }}/{{ item.common_name }}.key"
+  register: file
+  delegate_to: localhost
+  run_once: true
+  tags: certificates
+
+- name: "check if key for {{ item.common_name }} is consistent on localhost"
+  openssl_privatekey_info:
+    content: "{{ lookup('file', 'certs/{}/{}.key'.format(item.common_name, item.common_name)) }}"
+  delegate_to: localhost
+  run_once: true
+  register: ca_key
+  when: file.stat.exists
+  tags: certificates
+
+- name: "create host CSR signing key for {{ item.common_name }} on localhost"
+  community.crypto.openssl_privatekey:
+    path: "certs/{{ item.common_name }}/{{ item.common_name }}.key"
+    format: pkcs1
+    type: RSA
+    size: 4096
+    mode: 0600
+  delegate_to: localhost
+  run_once: true
+  register: priv_key
+  when: not file.stat.exists
+  tags: certificates
+
+- name: "check if cert for {{ item.common_name }} is present on localhost"
+  stat:
+    path: "certs/{{ item.common_name }}/{{ item.common_name }}.crt"
+  register: file
+  delegate_to: localhost
+  run_once: true
+  tags: certificates
+
+- name: "check if certificate for {{ item.common_name }} is valid on localhost"
+  community.crypto.x509_certificate_info:
+    path: certs/ca.crt
+  register: cert
+  delegate_to: localhost
+  run_once: true
+  when: file.stat.exists
+  tags: certificates
+
+- name: "create the CSR for {{ item.common_name }} on localhost"
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "certs/{{ item.common_name }}/{{ item.common_name }}.key"
+    common_name: "{{ item.common_name }}"
+    subject_alt_name: "{{ item.subject_alt_name }}"
+  delegate_to: localhost
+  run_once: true
+  when: not file.stat.exists or cert.expired
+  register: csr
+  tags: certificates
+
+- name: "sign the CSR for {{ item.common_name }} with own ca on localhost"
+  openssl_certificate:
+    path: "certs/{{ item.common_name }}/{{ item.common_name }}.crt"
+    csr_content: "{{ csr.csr }}"
+    provider: ownca
+    ownca_path: "certs/ca.crt"
+    ownca_privatekey_content: "{{ lookup('file', 'certs/ca.key') }}"
+    ownca_not_after: +365d  # valid for one year
+    ownca_not_before: "-1d"  # valid since yesterday
+  delegate_to: localhost
+  run_once: true
+  when: not file.stat.exists or cert.expired
+  tags: certificates

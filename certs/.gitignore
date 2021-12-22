@@ -1,0 +1,5 @@
+*
+!.gitignore
+!certificate.yml
+!ensure_ca.yml
+!vars.yml

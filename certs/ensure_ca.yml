@@ -1,0 +1,83 @@
+---
+- name: check if CA key is present
+  stat:
+    path: certs/ca.key
+  register: file
+  delegate_to: localhost
+  run_once: true
+
+- name: check if CA key is consistent
+  openssl_privatekey_info:
+    content: "{{ lookup('file', 'certs/ca.key') }}"
+  delegate_to: localhost
+  run_once: true
+  register: ca_key
+  when: file.stat.exists
+
+- name: create CA key if not present
+  community.crypto.openssl_privatekey:
+    path: certs/ca.key
+    format: pkcs1
+    type: RSA
+    size: 4096
+    mode: 0600
+  delegate_to: localhost
+  run_once: true
+  register: ca_key
+  when: not file.stat.exists
+
+- name: check if CA cert is present
+  stat:
+    path: certs/ca.crt
+  register: file
+  delegate_to: localhost
+  run_once: true
+
+- name: check if CA certificate is valid
+  community.crypto.x509_certificate_info:
+    path: certs/ca.crt
+  register: cert
+  delegate_to: localhost
+  run_once: true
+  when: file.stat.exists
+
+- name: create CSR for CA certificate if cert not exists
+  community.crypto.openssl_csr_pipe:
+    privatekey_content: "{{ lookup('file', 'certs/ca.key') }}"
+    common_name: "{{ common_name }}"
+    basic_constraints:
+      - "CA:TRUE"
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+      - cRLSign
+      - digitalSignature
+    key_usage_critical: true
+  delegate_to: localhost
+  run_once: true
+  register: ca_csr
+  when: not file.stat.exists or cert.expired
+
+- name: create CA certificate if cert not exists
+  community.crypto.x509_certificate:
+    path: certs/ca.crt
+    csr_content: "{{ ca_csr.csr }}"
+    privatekey_content: "{{ lookup('file', 'certs/ca.key') }}"
+    provider: selfsigned
+  delegate_to: localhost
+  run_once: true
+  register: ca_crt
+  when: not file.stat.exists or cert.expired
+
+- name: push ca certificate
+  become: true
+  copy:
+    src: certs/ca.crt
+    dest: /usr/local/share/ca-certificates/
+    mode: 0644
+
+- name: update ca certificates
+  become: true
+  register: result
+  command: update-ca-certificates
+  changed_when: result.stdout is not search("0\s+added,\s+0\s+removed")
