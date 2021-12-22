@@ -1,0 +1,3 @@
+[submodule "vagrant-ansiblified"]
+	path = vagrant-ansiblified
+	url = git@github.com:groldo/vagrant-ansiblified.git
