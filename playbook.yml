@@ -1,4 +1,39 @@
 ---
+- name: make registry a router
+  hosts: registry
+  tasks:
+    - name: install iptables-persistent
+      become: true
+      apt:
+        name: iptables-persistent
+    - name: copy rules.v4
+      become: yes
+      copy:
+        src: files/rules.v4
+        dest: /etc/iptables/rules.v4
+    - name: restore file
+      become: true
+      command: iptables-restore /etc/iptables/rules.v4
+    - name: start and enable netfilter persistent
+      systemd:
+        name: netfilter-persistent
+        state: started
+        enabled: true
+  tags: router
+
+- name: prepare networking for hosts
+  hosts: kubernetes:!registry
+  tasks:
+    - name: disable eth0
+      become: true
+      command: ip l s eth0 down
+    # ignore fail when default route already set
+    - name: add default route via registry
+      become: true
+      command: ip r a default via 192.168.1.13
+      ignore_errors: true
+  tags: networking
+
 - name: prepare dns for hosts
   hosts: kubernetes
   tasks:
