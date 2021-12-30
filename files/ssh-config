@@ -4,7 +4,7 @@ Host masternode
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
-  IdentityFile /home/vagrant/Downloads/kubernetes_containerd_setup/vagrant-ansiblified/.vagrant/machines/masternode/virtualbox/private_key
+  IdentityFile /home/vagrant/Downloads/kubernetes_lab/vagrant-ansiblified/.vagrant/machines/masternode/virtualbox/private_key
   IdentitiesOnly yes
   LogLevel FATAL
 
@@ -14,7 +14,7 @@ Host workerone
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
-  IdentityFile /home/vagrant/Downloads/kubernetes_containerd_setup/vagrant-ansiblified/.vagrant/machines/workerone/virtualbox/private_key
+  IdentityFile /home/vagrant/Downloads/kubernetes_lab/vagrant-ansiblified/.vagrant/machines/workerone/virtualbox/private_key
   IdentitiesOnly yes
   LogLevel FATAL
 
@@ -24,6 +24,6 @@ Host registry
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
-  IdentityFile /home/vagrant/Downloads/kubernetes_containerd_setup/vagrant-ansiblified/.vagrant/machines/registry/virtualbox/private_key
+  IdentityFile /home/vagrant/Downloads/kubernetes_lab/vagrant-ansiblified/.vagrant/machines/registry/virtualbox/private_key
   IdentitiesOnly yes
   LogLevel FATAL
