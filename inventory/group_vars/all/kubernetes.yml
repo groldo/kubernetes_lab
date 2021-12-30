@@ -2,7 +2,7 @@
 all_kubernetes__kubeapi_vip: "192.168.1.253"
 all_kubernetes__kubeapi_vip_port: 6443
 
-all_kubernetes__k8s_version: "1.23.0"
+all_kubernetes__k8s_version: "1.23.1"
 all_kubernetes__coredns_version: "1.8.6"
 all_kubernetes__etcd_version: "3.5.1-0"
 all_kubernetes__pause_version: "3.6"
