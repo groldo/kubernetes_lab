@@ -1,0 +1,56 @@
+---
+- name: ensure certificates
+  hosts: kubernetes:localhost
+  gather_facts: false
+  vars_files:
+    - certs/vars.yml
+  tasks:
+    - import_tasks: certs/ensure_ca.yml
+  tags: certificates
+
+- name: Create certificates
+  hosts: docker_registry
+  vars_files:
+    - certs/vars.yml
+  tasks:
+    - name: generate docker_registry certificates
+      include_tasks: certs/certificate.yml
+      with_items:
+        - common_name: "{{ all_registry__domain }}"
+          subject_alt_name:
+            - "IP:{{ hostvars[inventory_hostname].ansible_eth1.ipv4.address }}"
+            - "DNS:{{ all_registry__domain }}"
+  tags: certificates
+
+- name: install docker
+  hosts: docker_registry
+  roles:
+    - role: docker-role
+  tags: docker_registry
+
+- name: install docker registry
+  hosts: docker_registry
+  tasks:
+    - include_tasks: tasks/docker_registry/docker_registry.yml
+  handlers:
+    - import_tasks: "{{ playbook_dir }}/handlers/main.yml"
+  tags: docker_registry
+
+- name: prepare k8s hosts
+  hosts: kubernetes
+  tasks:
+    - include_tasks: tasks/kubernetes/k8s_prepare.yml
+    - include_tasks: tasks/kubernetes/install_containerd.yml
+    - include_tasks: tasks/kubernetes/k8s_binaries.yml
+  tags: k8s_prepare
+  handlers:
+    - import_tasks: "{{ playbook_dir }}/handlers/main.yml"
+
+- name: setup master nodes
+  hosts: masternodes
+  tasks:
+    - include_tasks: tasks/kubernetes/k8s_config.yml
+    - include_tasks: tasks/kubernetes/k8s_high_availability.yml
+  tags: k8s_ha
+  handlers:
+    - import_tasks: "{{ playbook_dir }}/handlers/main.yml"
