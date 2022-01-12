@@ -1,4 +1,19 @@
 ---
+- name: create admin client
+  hosts: adminclient
+  tasks:
+    - include_tasks: tasks/kubernetes/k8s_binaries.yml
+    - name: create config directory
+      file:
+        path: "{{ ansible_user_dir }}/.kube"
+        state: directory
+    - name: template canal config
+      template:
+        src: templates/kubernetes/canal.yaml
+        dest: "{{ ansible_user_dir }}/.kube"
+      run_once: true
+      delegate_to: localhost
+
 - name: move kubernetes files
   hosts: all
   tasks:
@@ -25,27 +40,31 @@
         path: "{{ files.files  | map(attribute='path') | unique  }}"
         dest: "/etc/kubernetes/k8s_config.tgz"
       run_once: true
+      delegate_to: masternode
 
     - name: fetch archive from master one
       fetch:
         src: /etc/kubernetes/k8s_config.tgz
-        dest: "{{ playbook_dir }}/k8s_config.tgz"
+        dest: "{{ ansible_user_dir }}/.kube/"
         flat: true
-
-- name: template canal
-  hosts: all
-  tasks:
-    - name: template
-      template:
-        src: templates/kubernetes/canal.yaml
-        dest: "{{ ansible_user_dir }}"
       run_once: true
+      delegate_to: masternode
 
-#- name: move kubernetes files
-#  hosts: all
-#  tasks:
-#    - name: unarchive config
-#      become: true
-#      unarchive:
-#        src: "k8s_config.tgz"
-#        dest: "/etc/kubernetes/"
+- name: prepare
+  hosts: adminclient
+  tasks:
+    - name: unarchive admin.conf
+      unarchive:
+        src: "{{ ansible_user_dir }}/.kube/k8s_config.tgz"
+        dest: "{{ ansible_user_dir }}/.kube"
+        owner: vagrant
+        group: vagrant
+        include: 
+          - admin.conf
+    - name: rename admin.conf
+      copy:
+        src: "{{ ansible_user_dir }}/.kube/admin.conf"
+        dest: "{{ ansible_user_dir }}/.kube/config"
+        owner: vagrant
+        group: vagrant
+        mode: 0700
