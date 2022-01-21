@@ -1,0 +1,45 @@
+---
+- name: create gitlab ssl dir
+  become: true
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  loop:
+    - "{{ gitlab__config_dir }}/ssl"
+
+- name: copy certificates to gitlab
+  become: true
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - src: "certs/{{ gitlab__domain }}/{{ gitlab__domain }}.crt"
+      dest: "{{ gitlab__config_dir }}/ssl"
+      mode: "0644"
+    - src: "certs/{{ gitlab__domain }}/{{ gitlab__domain }}.key"
+      dest: "{{ gitlab__config_dir }}/ssl"
+      mode: "0600"
+#    - src: "certs/ca.crt"
+#      dest: "{{ all_registry__project_dir }}/certs"
+#      mode: "0644"
+
+#- name: create directory for registry ca certificate
+#  become: true
+#  file:
+#    path: "{{ item }}"
+#    state: directory
+#    mode: "0755"
+#  loop:
+#    - '/etc/docker/certs.d/{{ all_registry__domain }}'
+
+#- name: copy ca certificate to docker folder
+#  become: true
+#  copy:
+#    src: "{{ all_registry__project_dir }}/certs/ca.crt"
+#    dest: "/etc/docker/certs.d/{{ all_registry__domain }}"
+#    mode: 0600
+#    remote_src: true
+#  notify:
+#    - restart docker daemon

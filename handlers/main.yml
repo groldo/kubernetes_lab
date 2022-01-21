@@ -28,3 +28,7 @@
     daemon_reload: true
     state: restarted
     enabled: true
+
+- name: reconfigure gitlab
+  become: true
+  command: gitlab-ctl reconfigure

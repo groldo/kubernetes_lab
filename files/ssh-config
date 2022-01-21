@@ -18,12 +18,12 @@ Host workerone
   IdentitiesOnly yes
   LogLevel FATAL
 
-Host registry
+Host gitlab-server
   HostName 192.168.1.13
   User vagrant
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
-  IdentityFile /home/vagrant/Downloads/kubernetes_lab/vagrant-ansiblified/.vagrant/machines/registry/virtualbox/private_key
+  IdentityFile /home/vagrant/Downloads/kubernetes_lab/vagrant-ansiblified/.vagrant/machines/gitlab/virtualbox/private_key
   IdentitiesOnly yes
   LogLevel FATAL

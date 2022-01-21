@@ -1,6 +1,6 @@
 ---
 - name: ensure certificates
-  hosts: kubernetes:localhost
+  hosts: kubernetes:gitlab:localhost
   gather_facts: false
   vars_files:
     - certs/vars.yml
@@ -9,33 +9,28 @@
   tags: certificates
 
 - name: Create certificates
-  hosts: docker_registry
+  hosts: gitlab
   vars_files:
     - certs/vars.yml
   tasks:
-    - name: generate docker_registry certificates
+    - name: generate gitlab certificates
       include_tasks: certs/certificate.yml
       with_items:
-        - common_name: "{{ all_registry__domain }}"
+        - common_name: "{{ gitlab__domain }}"
           subject_alt_name:
             - "IP:{{ hostvars[inventory_hostname].ansible_eth1.ipv4.address }}"
-            - "DNS:{{ all_registry__domain }}"
+            - "DNS:{{ gitlab__domain }}"
   tags: certificates
 
-- name: install docker
-  hosts: docker_registry
-  roles:
-    - role: docker-role
-  tags: docker_registry
-
-- name: install docker registry
-  hosts: docker_registry
+- name: install gitlab
+  hosts: gitlab
   tasks:
-    - include_tasks: tasks/docker_registry/docker_registry.yml
+    - include_tasks: tasks/gitlab/certificates.yml
+    - include_tasks: tasks/gitlab/install.yml
+  tags: gitlab
   handlers:
     - import_tasks: "{{ playbook_dir }}/handlers/main.yml"
-  tags: docker_registry
-
+  
 - name: prepare k8s hosts
   hosts: kubernetes
   tasks:

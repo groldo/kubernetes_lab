@@ -1,6 +1,6 @@
 ---
 - name: make registry a router
-  hosts: registry
+  hosts: gitlab
   tasks:
     - name: install iptables-persistent
       become: true
@@ -38,7 +38,7 @@
   tags: networking
 
 - name: prepare dns for hosts
-  hosts: kubernetes:docker_registry:adminclient
+  hosts: kubernetes:gitlab:adminclient
   tasks:
     - name: set dns entries for project
       become: true
@@ -47,5 +47,5 @@
         block: |
           192.168.1.11 masternode masternode.local
           192.168.1.12 workerone workerone.local
-          192.168.1.13 registry registry.local
+          192.168.1.13 gitlab gitlab.local
   tags: dns

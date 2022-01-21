@@ -1,0 +1,18 @@
+---
+- name: test gitlab with https
+  hosts: gitlab
+  tasks:
+    - name: test gitlab login page
+      register: login
+      uri:
+        url: 'https://gitlab.local/users/sign_in'
+        return_content: true
+      delegate_to: localhost
+    
+    - debug:
+        var: login
+
+    - assert:
+        that: 
+          - login.status == 200
+          - login.content is search('Register')

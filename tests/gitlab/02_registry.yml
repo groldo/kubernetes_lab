@@ -1,0 +1,16 @@
+---
+- name: test gitlab registry
+  hosts: gitlab
+  tasks:
+    - name: test gitlab login page
+      register: registry
+      uri:
+        url: 'https://gitlab.local:5050'
+        return_content: true
+      delegate_to: localhost
+    
+    - debug:
+        var: registry
+
+    - assert:
+        that: registry.status == 200

@@ -1,0 +1,4 @@
+---
+gitlab__package: https://packages.gitlab.com/gitlab/gitlab-ce/packages/ubuntu/focal/gitlab-ce_14.6.2-ce.0_amd64.deb/download.deb
+gitlab__config_dir: "/etc/gitlab"
+gitlab__domain: "gitlab.local"

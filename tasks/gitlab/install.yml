@@ -1,0 +1,29 @@
+---
+- name: install prerequisites
+  become: true
+  apt:
+    name:
+      - curl 
+      - openssh-server 
+      - ca-certificates 
+      - tzdata 
+      - perl
+
+- name: create gitlab dir
+  become: true
+  file:
+    path: "{{ gitlab__config_dir }}"
+    state: directory
+
+- name: template gitlab.rb
+  become: true
+  template:
+    src: templates/gitlab/gitlab.rb.j2
+    dest: "{{ gitlab__config_dir }}/gitlab.rb"
+  notify:
+    - reconfigure gitlab
+
+- name: install gitlab
+  become: true
+  apt:
+    deb: "{{ gitlab__package }}"
