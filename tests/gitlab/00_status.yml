@@ -1,0 +1,11 @@
+---
+- name: test gitlab with shell
+  hosts: gitlab
+  tasks:
+    - name: test gitlab check 
+      become: true
+      command: gitlab-rake gitlab:check SANITIZE=true
+      register: check
+    
+    - assert:
+        that: "'failed' or 'error' not in check"
