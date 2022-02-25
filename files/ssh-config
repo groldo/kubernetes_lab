@@ -24,6 +24,6 @@ Host gitlab-server
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
-  IdentityFile /home/vagrant/Downloads/kubernetes_lab/vagrant-ansiblified/.vagrant/machines/gitlab/virtualbox/private_key
+  IdentityFile /home/vagrant/Downloads/kubernetes_lab/vagrant-ansiblified/.vagrant/machines/gitlab-server/virtualbox/private_key
   IdentitiesOnly yes
   LogLevel FATAL

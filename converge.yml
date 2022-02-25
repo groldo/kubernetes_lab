@@ -18,8 +18,10 @@
       with_items:
         - common_name: "{{ gitlab__domain }}"
           subject_alt_name:
-            - "IP:{{ hostvars[inventory_hostname].ansible_eth1.ipv4.address }}"
             - "DNS:{{ gitlab__domain }}"
+        - common_name: "registry.{{ gitlab__domain }}"
+          subject_alt_name:
+            - "DNS:registry.{{ gitlab__domain }}"
   tags: certificates
 
 - name: install gitlab
