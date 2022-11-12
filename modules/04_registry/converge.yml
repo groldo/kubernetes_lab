@@ -1,0 +1,11 @@
+---
+- name: install docker registry
+  hosts: docker_registry
+  tasks:
+    - include_tasks: tasks/main.yml
+  handlers:
+    - name: restart docker daemon
+      become: true
+      systemd:
+        service: docker
+        state: restarted
