@@ -1,0 +1,54 @@
+---
+- name: make registry a router
+  hosts: registry
+  tasks:
+    - name: install iptables-persistent
+      become: true
+      apt:
+        name: iptables-persistent
+    - name: copy rules.v4
+      become: yes
+      copy:
+        src: files/rules.v4
+        dest: /etc/iptables/rules.v4
+    - name: restore file
+      become: true
+      command: iptables-restore /etc/iptables/rules.v4
+    - name: start and enable netfilter persistent
+      systemd:
+        name: netfilter-persistent
+        state: started
+        enabled: true
+  tags: router
+
+- name: prepare networking for hosts
+  hosts: kubernetes
+  tasks:
+    - name: disable eth0
+      become: true
+      command: ip l s eth0 down
+    - name: add default route via registry
+      become: true
+      command: ip r a default via 192.168.60.9
+      ignore_errors: true
+      # ignore fail when default route already set
+    - name: set dns
+      become: true
+      command: resolvectl dns eth1 1.1.1.1
+  tags: networking
+
+- name: prepare dns for hosts
+  hosts: kubernetes:docker_registry
+  tasks:
+    - name: set dns entries for project
+      become: true
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          192.168.60.9 registry registry.local
+          192.168.60.11 main01 main01.local
+          192.168.60.12 main02 main02.local
+          192.168.60.13 main03 main03.local
+          192.168.60.21 worker01 worker01.local
+          192.168.60.22 worker02 worker01.local
+  tags: dns
