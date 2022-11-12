@@ -1,4 +1,12 @@
 ---
+- name: "ensure directory for {{ item.common_name }} on localhost"
+  file:
+    path: "certs"
+    state: directory
+    mode: 0755
+  delegate_to: localhost
+  run_once: true
+
 - name: check if CA key is present
   stat:
     path: certs/ca.key

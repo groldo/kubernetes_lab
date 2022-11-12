@@ -1,0 +1,22 @@
+- name: ensure certificates
+  hosts: all
+  gather_facts: false
+  vars_files:
+    - vars.yml
+  tasks:
+    - import_tasks: tasks/ensure_ca.yml
+  tags: certificates
+
+- name: Create certificates
+  hosts: docker_registry
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: generate docker_registry certificates
+      include_tasks: tasks/certificate.yml
+      with_items:
+        - common_name: "{{ all_registry__domain }}"
+          subject_alt_name:
+            - "IP:{{ hostvars[inventory_hostname].ansible_eth0.ipv4.address }}"
+            - "DNS:{{ all_registry__domain }}"
+  tags: certificates
