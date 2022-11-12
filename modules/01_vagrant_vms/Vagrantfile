@@ -1,0 +1,102 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+require 'yaml'
+server          = ["main01", "main02", "main03", "worker01", "worker02", "registry"]
+current_dir     = File.dirname(File.expand_path(__FILE__))
+host_config     = YAML.load_file("#{current_dir}/vagrant.yml")
+
+$docker_install = <<SCRIPT
+echo "Installing Docker..."
+sudo apt-get update
+sudo apt-get remove docker docker-engine docker.io
+echo '* libraries/restart-without-asking boolean true' | sudo debconf-set-selections
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg |  sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository \
+      "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) \
+      stable"
+sudo apt-get update
+sudo apt-get install -y docker-ce
+# Restart docker to make sure we get the latest version of the daemon if there is an upgrade
+sudo service docker restart
+# Make sure we can actually use docker as the vagrant user
+sudo usermod -aG docker vagrant
+sudo docker --version
+SCRIPT
+
+$ansible_install = <<SCRIPT
+echo -e "vagrant\nvagrant" | sudo passwd vagrant
+export DEBIAN_FRONTEND=noninteractive
+ansible --version || (  
+    sudo apt-get -y purge python2.7 python-minimal
+    sudo apt-get update && sudo apt-get -q --option \"Dpkg::Options::=--force-confold\" --assume-yes upgrade -y -qq
+    sudo -E apt-get -q --option \"Dpkg::Options::=--force-confold\" --assume-yes install -y -qq python3-pip     
+    sudo pip3 install ansible 
+)
+SCRIPT
+
+serverip = 1
+workerip = 1
+
+ENV["VAGRANT_EXPERIMENTAL"]="1"
+Vagrant.configure("2") do |config|
+  server.each do |host|
+    config.vm.define host do |machine|
+
+      machine.vm.boot_timeout = host_config['boot_timeout']
+      machine.vm.box = host_config['box']
+      machine.vm.hostname = host
+
+      ## virtualbox config
+
+      if host.match(/main/)
+        machine.vm.network "private_network", ip: "192.168.60.1#{serverip}"
+        serverip += 1
+      end
+      if host.match(/worker/)
+        machine.vm.network "private_network", ip: "192.168.60.2#{workerip}"
+        workerip += 1
+      end
+      if host.match(/registry/)
+        machine.vm.network "private_network", ip: "192.168.60.9"
+      end
+      machine.vm.provider :virtualbox do |vb|
+        vb.name = host
+        vb.gui = host_config['gui']
+        vb.customize ["modifyvm", :id, "--memory", host_config['memory']]
+        host_config['customize_opts'].each do |opt, setting|
+          vb.customize ["modifyvm", :id, opt, setting]
+        end
+      end
+
+      machine.ssh.username = host_config['ansible_user']
+      machine.ssh.insert_key = "false"
+
+      host_config['file_provision'].each do |src, dest|
+        machine.vm.provision "file", source: src, destination: dest
+      end
+
+      host_config['shell_provision'].each do | cmd |
+        machine.vm.provision "shell", privileged: false, inline: cmd
+      end
+
+      if host.match(/registry/)
+        machine.vm.provision "shell", inline: $docker_install, privileged: false
+      end
+
+      machine.vm.provision "shell", inline: $ansible_install, privileged: false
+      #machine.vm.provision "ansible_local" do |ansible|
+      #  ansible.inventory_path = "inventory/hosts.yml"
+      #  ansible.limit = "all"
+      #  ansible.playbook = "converge.yml"
+      #  ansible.galaxy_role_file = "roles/requirements.yml"
+      #  ansible.limit          = host
+      #  ansible.inventory_path = "inventory/hosts.yml"
+      #end
+    end
+  end
+end
+  

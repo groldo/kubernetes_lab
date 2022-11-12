@@ -1,0 +1,21 @@
+---
+cpus: 2
+memory: 2048
+boot_timeout: 200
+ansible_user: vagrant
+box: "bento/ubuntu-20.04"
+
+gui: false
+customize_opts:
+  "--accelerate3d": "off"
+  "--vrde": "off"
+
+file_provision:
+  "~/.ssh/id_rsa": "~/.ssh/id_rsa"
+  "~/.ssh/id_rsa.pub": "~/.ssh/id_rsa.pub"
+
+shell_provision:
+  - "sudo resolvectl dns eth0 1.1.1.1"
+  - "sudo resolvectl dns eth1 1.1.1.1"
+  - "sudo sed -i 's/#DNS=/DNS=1.1.1.1/g' /etc/systemd/resolved.conf"
+  - "sudo systemctl restart systemd-resolved"
