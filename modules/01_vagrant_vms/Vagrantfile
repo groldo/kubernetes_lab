@@ -2,9 +2,9 @@
 # vi: set ft=ruby :
 
 require 'yaml'
-server          = ["main01", "main02", "main03", "worker01", "worker02", "registry"]
-current_dir     = File.dirname(File.expand_path(__FILE__))
-host_config     = YAML.load_file("#{current_dir}/vagrant.yml")
+server          = ["main01", "worker01", "registry"]
+box             = "bento/ubuntu-22.04"
+vm_memory       = 2048
 
 $docker_install = <<SCRIPT
 echo "Installing Docker..."
@@ -46,12 +46,11 @@ Vagrant.configure("2") do |config|
   server.each do |host|
     config.vm.define host do |machine|
 
-      machine.vm.boot_timeout = host_config['boot_timeout']
-      machine.vm.box = host_config['box']
+      machine.vm.boot_timeout = 200
+      machine.vm.box = box
       machine.vm.hostname = host
 
-      ## virtualbox config
-
+      # ip config
       if host.match(/main/)
         machine.vm.network "private_network", ip: "192.168.60.1#{serverip}"
         serverip += 1
@@ -63,31 +62,37 @@ Vagrant.configure("2") do |config|
       if host.match(/registry/)
         machine.vm.network "private_network", ip: "192.168.60.9"
       end
+
+      # virtualbox config
       machine.vm.provider :virtualbox do |vb|
-        vb.name = host
-        vb.gui = host_config['gui']
-        vb.customize ["modifyvm", :id, "--memory", host_config['memory']]
-        host_config['customize_opts'].each do |opt, setting|
-          vb.customize ["modifyvm", :id, opt, setting]
+        vb.gui = false
+        vb.memory = vm_memory
+        vb.customize ["modifyvm", :id, "--accelerate3d", "off"]
+        vb.customize ["modifyvm", :id, "--vrde", "off"]
+      end
+
+      # Increase memory for VMware
+      ["vmware_fusion", "vmware_workstation"].each do |p|
+        config.vm.provider p do |v|
+          v.vmx["memsize"] = vm_memory
         end
       end
 
-      machine.ssh.username = host_config['ansible_user']
+      machine.ssh.username = "vagrant"
       machine.ssh.insert_key = "false"
 
-      host_config['file_provision'].each do |src, dest|
-        machine.vm.provision "file", source: src, destination: dest
-      end
+      machine.vm.provision "file", source: "~/.ssh/id_rsa", destination: "~/.ssh/id_rsa"
+      machine.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/id_rsa.pub"
 
-      host_config['shell_provision'].each do | cmd |
-        machine.vm.provision "shell", privileged: false, inline: cmd
-      end
+      machine.vm.provision "shell", privileged: false, inline: "sudo resolvectl dns eth0 1.1.1.1"
+      machine.vm.provision "shell", privileged: false, inline: "sudo resolvectl dns eth1 1.1.1.1"
 
       if host.match(/registry/)
         machine.vm.provision "shell", inline: $docker_install, privileged: false
       end
 
       machine.vm.provision "shell", inline: $ansible_install, privileged: false
+
       #machine.vm.provision "ansible_local" do |ansible|
       #  ansible.inventory_path = "inventory/hosts.yml"
       #  ansible.limit = "all"
@@ -96,6 +101,7 @@ Vagrant.configure("2") do |config|
       #  ansible.limit          = host
       #  ansible.inventory_path = "inventory/hosts.yml"
       #end
+
     end
   end
 end
