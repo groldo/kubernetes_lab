@@ -1,0 +1,70 @@
+all:
+  hosts:
+    registry:
+      ipv4address: 192.168.60.9
+    main01:
+      ipv4address: 192.168.60.11
+    main02:
+      ipv4address: 192.168.60.12
+    main03:
+      ipv4address: 192.168.60.13
+    worker01:
+      ipv4address: 192.168.60.21
+    worker02:
+      ipv4address: 192.168.60.22
+  children:
+    kubernetes:
+      children:
+        masternodes:
+          hosts:
+            main01:
+            main02:
+            main03:
+        workernodes:
+          hosts:
+            worker01:
+            worker02:
+    adminclient:
+      hosts:
+        main01:
+    docker_registry:
+      hosts:
+        registry:
+  vars:
+    scenario: kubernetes
+    ansible_user: vagrant
+    all_all__docker_registry: "{{ all_registry__domain }}"
+    all_containerd__release_version: 1.5.5
+    all_kubernetes__kubeapi_vip: "192.168.60.253"
+    all_kubernetes__kubeapi_vip_port: 6443
+
+    all_kubernetes__k8s_version: "1.25.3"
+    all_kubernetes__coredns_version: "1.9.3"
+    all_kubernetes__etcd_version: "3.5.4-0"
+    all_kubernetes__pause_version: "3.8"
+    all_kubernetes__pause_image: "{{ all_all__docker_registry }}/pause:{{ all_kubernetes__pause_version }}"
+    all_kubernetes__bootstrap_token: "abcdef.0123456789abcdef"
+    all_registry__project_dir: "{{ ansible_user_dir }}/registry"
+    all_registry__domain: "registry.local"
+    all_registry__skip_images: false
+
+    docker_daemon_json_path: "templates/docker_registry/daemon.json"
+
+    container_images:
+      - 'k8s.gcr.io/kube-apiserver:v{{ all_kubernetes__k8s_version }}'
+      - 'k8s.gcr.io/kube-controller-manager:v{{ all_kubernetes__k8s_version }}'
+      - 'k8s.gcr.io/kube-scheduler:v{{ all_kubernetes__k8s_version }}'
+      - 'k8s.gcr.io/kube-proxy:v{{ all_kubernetes__k8s_version }}'
+      - 'k8s.gcr.io/pause:{{ all_kubernetes__pause_version }}'
+      - 'k8s.gcr.io/etcd:{{ all_kubernetes__etcd_version }}'
+      - 'k8s.gcr.io/coredns/coredns:v{{ all_kubernetes__coredns_version }}'
+      - 'busybox:1.30'
+      - 'calico/node:v3.21.2'
+      - 'calico/pod2daemon-flexvol:v3.21.2'
+      - 'calico/cni:v3.21.2'
+      - 'calico/kube-controllers:v3.21.2'
+      - 'quay.io/coreos/flannel:v0.13.0'
+      - 'kubernetesui/dashboard:v2.0.0'
+      - 'kubernetesui/metrics-scraper:v1.0.4'
+      - 'weaveworks/weave-kube:2.8.1'
+      - 'weaveworks/weave-npc:2.8.1'

@@ -1,2 +1,0 @@
----
-all_all__docker_registry: "{{ all_registry__domain }}"
