@@ -1,0 +1,15 @@
+- name: prepare k8s hosts
+  hosts: kubernetes
+  tasks:
+    - include_tasks: tasks/k8s_prepare.yml
+    - include_tasks: tasks/k8s_binaries.yml
+  handlers:
+    - import_tasks: "handlers/main.yml"
+
+- name: setup master nodes
+  hosts: masternodes
+  tasks:
+    - include_tasks: tasks/k8s_config.yml
+    - include_tasks: tasks/k8s_high_availability.yml
+  handlers:
+    - import_tasks: "handlers/main.yml"
