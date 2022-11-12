@@ -2,9 +2,9 @@
 # vi: set ft=ruby :
 
 require 'yaml'
-server          = ["main01", "main02", "main03", "worker01", "worker02", "worker03", "registry"]
+server          = ["main01", "worker01", "registry"]
 box             = "bento/ubuntu-22.04"
-vm_memory       = 4096
+vm_memory       = 2048
 
 $docker_install = <<SCRIPT
 echo "Installing Docker..."
