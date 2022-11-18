@@ -1,0 +1,282 @@
+    1  exit
+    2  sudo kubeadm config images pull --config /etc/kubernetes/init-config.yaml
+    3  sudo kubeadm config images list
+    4  sudo kubeadm init --config /etc/kubernetes/init-config.yaml --ignore-preflight-errors=Port-6443
+    5  exit
+    6  kubeadm token create --print-join-command
+    7  sudo kubeadm token create --print-join-command
+    8  sudo kubectl get cm -n kube-system kubeadm-config -o=jsonpath="{.data.ClusterConfiguration}"
+    9  exit
+   10  ls
+   11  cd .kube/
+   12  ls
+   13  exit
+   14  kubectl get nodes
+   15  kubectl get cm -n kube-system kubeadm-config -o=jsonpath="{.data.ClusterConfiguration}"
+   16  ls
+   17  kubectl get pods -n kube-system
+   18  kubectl log -n kube-system kube-apiserver-main02
+   19  kubectl logs -n kube-system kube-apiserver-main02
+   20  ls
+   21  kubectl get cm -n kube-system kubeadm-config -o=jsonpath="{.data.ClusterConfiguration}"
+   22  exit
+   23  kubectl get pods -n kube-system
+   24  watch kubectl get pods -n kube-system
+   25  exit
+   26  curl https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/manifests/canal.yaml -O
+   27  kubectl apply -f ~/canal.yaml
+   28  watch kubectl get pods -n kube-system
+   29  wget https://get.helm.sh/helm-v3.10.2-linux-amd64.tar.gz
+   30  ls
+   31  watch kubectl get pods -n kube-system
+   32  kubectl 
+   33  sudo kubeadm token list
+   34  sudo kubeadm token --help
+   35  sudo kubeadm token create --print-join-command
+   36  tar xf helm-v3.10.2-linux-amd64.tar.gz 
+   37  mv linux-amd64/helm /usr/local/bin/helm
+   38  sudo mv linux-amd64/helm /usr/local/bin/helm
+   39  helm --help
+   40  sudo apt install git curl make
+   41  git clone https://opendev.org/openstack/openstack-helm-infra.git
+   42  git clone https://opendev.org/openstack/openstack-helm.git
+   43  exit
+   44  htop
+   45  exit
+   46  ./tools/deployment/developer/common/020-setup-client.sh
+   47  ./tools/deployment/component/common/ingress.sh
+   48  sudo apt install jq
+   49  ./tools/deployment/component/common/ingress.sh
+   50  ./tools/deployment/multinode/010-setup-client.sh
+   51  export OSH_DEPLOY_MULTINODE=True
+   52  OSH_DEPLOY_MULTINODE=True ./tools/deployment/component/common/ingress.sh
+   53  ls
+   54  ssh main01
+   55  ssh main02
+   56  ssh main03
+   57  vim hosts.yml
+   58  ansible all -i hosts.yml -m shell -s -a "tools/deployment/common/setup-ceph-loopback-device.sh --ceph-osd-data /dev/loop0 --ceph-osd-dbwal /dev/loop1"
+   59  ansible all -i hosts.yml -m shell -a "tools/deployment/common/setup-ceph-loopback-device.sh --ceph-osd-data /dev/loop0 --ceph-osd-dbwal /dev/loop1"
+   60  vim hosts.yml 
+   61  ansible all -i hosts.yml -m shell -a "tools/deployment/common/setup-ceph-loopback-device.sh --ceph-osd-data /dev/loop0 --ceph-osd-dbwal /dev/loop1"
+   62  sudo apt update
+   63  sudo apt install sshpass
+   64  ansible all -i hosts.yml -m shell -a "tools/deployment/common/setup-ceph-loopback-device.sh --ceph-osd-data /dev/loop0 --ceph-osd-dbwal /dev/loop1"
+   65  vim hosts.yml 
+   66  ansible all -i hosts.yml -m shell -a "tools/deployment/common/setup-ceph-loopback-device.sh --ceph-osd-data /dev/loop0 --ceph-osd-dbwal /dev/loop1"
+   67  ssh vagrant@main01 '/bin/bash -s' < "tools/deployment/common/setup-ceph-loopback-device.sh --ceph-osd-data /dev/loop0 --ceph-osd-dbwal /dev/loop1"
+   68  ssh vagrant@main01 '/bin/bash -s --ceph-osd-data /dev/loop0 --ceph-osd-dbwal /dev/loop1' < "tools/deployment/common/setup-ceph-loopback-device.sh"
+   69  ssh vagrant@main01 '/bin/bash -s "--ceph-osd-data /dev/loop0" "--ceph-osd-dbwal /dev/loop1"' < "tools/deployment/common/setup-ceph-loopback-device.sh"
+   70  ssh vagrant@main01 '/bin/bash -s "--ceph-osd-data" "/dev/loop0" "--ceph-osd-dbwal" "/dev/loop1"' < "tools/deployment/common/setup-ceph-loopback-device.sh"
+   71  ssh vagrant@main01 '/bin/bash -s "--ceph-osd-data" "/dev/loop0" "--ceph-osd-dbwal" "/dev/loop1"' < tools/deployment/common/setup-ceph-loopback-device.sh
+   72  ssh vagrant@main01 "/bin/bash -s --ceph-osd-data /dev/loop0 --ceph-osd-dbwal /dev/loop1" < tools/deployment/common/setup-ceph-loopback-device.sh
+   73  ssh vagrant@main01 "/bin/bash -s '--ceph-osd-data' '/dev/loop0' '--ceph-osd-dbwal' '/dev/loop1'" < tools/deployment/common/setup-ceph-loopback-device.sh
+   74  vim ceph-lo.sh
+   75  chmod +x ceph-lo.sh 
+   76  ./ceph-lo.sh --ceph-osd-data /dev/loop0 --ceph-osd-dbwal /dev/loop1
+   77  ./ceph-lo.sh --ceph-osd-data /dev/loop1 --ceph-osd-dbwal /dev/loop2
+   78  ./ceph-lo.sh --ceph-osd-data /dev/loop2 --ceph-osd-dbwal /dev/loop3
+   79  ./ceph-lo.sh --ceph-osd-data /dev/loop8 --ceph-osd-dbwal /dev/loop9
+   80  scp ceph-lo.sh vagrant@main02
+   81  scp ceph-lo.sh vagrant@main02:
+   82  scp ceph-lo.sh vagrant@main03:
+   83  scp ceph-lo.sh vagrant@worker02:
+   84  scp ceph-lo.sh vagrant@worker01:
+   85  ls
+   86  ssh main02
+   87  ssh main03
+   88  ssh worker01
+   89  ssh worker02
+   90  vim ceph.sh
+   91  chmod +x ceph.sh 
+   92  ./ceph.sh 
+   93  vim ceph.sh 
+   94  ./ceph.sh 
+   95  helm uninstall ceph-mon ../openstack-helm-infra/ceph-mon     --namespace=ceph     --values=/tmp/ceph.yaml
+   96  helm uninstall ceph-mon ../openstack-helm-infra/ceph-mon     --namespace=ceph     
+   97  ./ceph.sh 
+   98  helm uninstall ceph-mon ../openstack-helm-infra/ceph-mon     --namespace=ceph     
+   99  helm uninstall ceph-osd
+  100  helm uninstall ceph-osd --namespace=ceph
+  101  ./ceph.sh 
+  102  kubectl get nodes
+  103  kubectl drain main01
+  104  kubectl drain main01 --ignore-daemonsets
+  105  kubectl get nodes
+  106  watch kubectl get pods -n kube-system
+  107  watch kubectl get pods 
+  108  watch kubectl get pods -n openstack
+  109  watch kubectl get pods -n kube-system
+  110  kubectl get pods -n kube-system
+  111  kubectl logs ingress-error-pages-ffd756fcb-xbhdb
+  112  watch kubectl get pods -n kube-system
+  113  kubectl logs -n kube-system ingress-error-pages-ffd756fcb-xbhdb
+  114  kubectl logs -n kube-system kube-scheduler-main01
+  115  watch kubectl get pods -n kube-system
+  116  kubectl describe pods ingress-error-pages-ffd756fcb-xbhdb
+  117  kubectl describe pods -n kube-system ingress-error-pages-ffd756fcb-xbhdb
+  118  watch kubectl get pods -n kube-system
+  119  kubectl describe pods -n kube-system ingress-error-pages-ffd756fcb-xbhdb
+  120  watch kubectl get pods -n kube-system
+  121  kubectl describe pods -n kube-system ingress-error-pages-ffd756fcb-pvhd8
+  122  kubectl logs -n kube-system ingress-error-pages-ffd756fcb-pvhd8
+  123  cd ../
+  124  ls
+  125  cd openstack-helm-infra/
+  126  ls
+  127  cat tools/gate/deploy-k8s
+  128  cat tools/gate/deploy-k8s.sh 
+  129  cat tools/gate/deploy-k8s-kubeadm.sh 
+  130  watch kubectl get pods -n kube-system
+  131  kubectl describe pods -n kube-system ingress-error-pages-ffd756fcb-pvhd8
+  132  kubectl describe pods -n kube-system ingress-error-pages-ffd756fcb-vgn28
+  133  vim test.sh
+  134  chmod +x test.sh 
+  135  ./test.sh 
+  136  watch kubectl get pods -n kube-system
+  137  vim test.sh
+  138  ./test.sh 
+  139  vim test.sh
+  140  ./test.sh 
+  141  ls
+  142  cat test.sh 
+  143  watch kubectl get pods -n kube-system
+  144  watch kubectl get namespaces
+  145  kubectl get namespaces
+  146  kubectl get pods -n ceph
+  147  kubectl get pods -n osh-infra
+  148  kubectl get pods -n openstack
+  149  htop
+  150  helm upgrade --install ingress-kube-system 
+  151  helm template ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml
+  152  sudo apt install yql
+  153  sudo apt install yq
+  154  helm template ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml --output=json
+  155  helm template --help
+  156  helm template --help | grep json
+  157  helm template --help | grep output
+  158  sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+  159  sudo chmod a+x /usr/local/bin/yq
+  160  yq --version
+  161  helm template ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml --output=json
+  162  helm template ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml | yq '..|.image? | select(.)' | sort -u
+  163  helm upgrade --install ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml
+  164  helm --help
+  165  helm uninstall --install ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml
+  166  helm uninstall  ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml
+  167  helm uninstall  ../openstack-helm-infra/ingress --namespace=kube-system 
+  168  helm uninstall  ../openstack-helm-infra/ingress 
+  169  helm uninstall ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml
+  170  helm uninstall ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system 
+  171  helm uninstall ingress-kube-system 
+  172  helm template ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml
+  173  helm template ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yaml | grep image
+  174  helm uninstall ingress-kube-system 
+  175  helm uninstall ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system --values=/tmp/ingress-kube-system.yam
+  176  helm uninstall ingress-kube-system ../openstack-helm-infra/ingress --namespace=kube-system 
+  177  kubectl get namespaces
+  178  kubectl get pods -n ceph
+  179  kubectl get logs ceph-osd-default-83945928-qsvf4
+  180  kubectl logs ceph-osd-default-83945928-qsvf4
+  181  kubectl logs -n ceph ceph-osd-default-83945928-qsvf4
+  182  kubectl get pods -n ceph
+  183  kubectl logs -n ceph ceph-osd-default-83945928-qsvf4
+  184  watch kubectl get pods -n ceph
+  185  kubectl logs -n ceph ceph-osd-default-83945928-htkjb
+  186  kubectl describe pod ceph-osd-default-83945928-htkjb
+  187  kubectl describe pod -n ceph ceph-osd-default-83945928-htkjb
+  188  watch kubectl get pods -n ceph
+  189  kubectl get pods -n ceph
+  190  kubectl describe pod -n ceph ceph-rbd-pool-v84ww
+  191  kubectl get pods -n ceph
+  192  kubectl describe pods -n ceph ceph-rbd-pool-v84ww
+  193  kubectl get pods -n ceph
+  194  helm template ceph-client      --namespace=ceph     
+  195  helm template ceph-client ../openstack-helm-infra/ceph-client     --namespace=ceph     
+  196  helm install --dry-run ceph-client ../openstack-helm-infra/ceph-client     --namespace=ceph     --values=/tmp/ceph.yaml 
+  197  kubectl describe pods -n ceph ceph-rbd-pool-v84ww
+  198  kubectl get pods -n ceph
+  199  watch kubectl get pods -n ceph
+  200  kubectl logs -n ceph ceph-pool-checkpgs-27808470-qjzjk
+  201  watch kubectl get pods -n ceph
+  202  sudo shutdown -P 0
+  203  kubectl uncordon main01
+  204  kubectl get nodes
+  205  kubectl drain main02
+  206  kubectl drain main02 --ignore-daemonsets
+  207  exit
+  208  kubectl get nodes
+  209  kubectl uncordon main02
+  210  kubectl get nodes
+  211  kubectl drain main03 --ignore-daemonsets
+  212  exit
+  213  kubectl get nodes
+  214  kubectl uncordon main03
+  215  kubectl get nodes
+  216  kubectl drain worker01
+  217  kubectl drain worker01 --delete-emptydir-data --ignore-daemonsets
+  218  exit
+  219  kubectl get nodes
+  220  kubectl uncordon worker01
+  221  kubectl get nodes
+  222  kubectl drain worker02 --delete-emptydir-data --ignore-daemonsets
+  223  exit
+  224  watch kubectl get pods -n ceph
+  225  htop
+  226  exit
+  227  kubectl get nodes
+  228  kubectl uncordon worker02
+  229  kubectl get nodes
+  230  htop
+  231  exit
+  232  ./ceph.sh 
+  233  exit
+  234  watch kubectl get pods -n ceph
+  235  exit
+  236  df -h
+  237  ls -lah /dev/loop
+  238  watch kubectl get pods -n ceph
+  239  kubectl get pods -n ceph
+  240  kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.1/aio/deploy/recommended.yaml
+  241  kubectl proxy
+  242  kubectl get namespaces
+  243  kubectl get pods -n kubernetes-dashboard
+  244  kubectl proxy
+  245  kubectl get pods -n kubernetes-dashboard
+  246  kubectl logs kubernetes-dashboard-66c887f759-gp69b
+  247  kubectl logs -n kubernetes-dashboard kubernetes-dashboard-66c887f759-gp69b
+  248  kubectl logs -n kubernetes-dashboard kubernetes-dashboard-66c887f759-gp69b -f
+  249  history
+  250  exit
+  251  watch kubectl get pods -n ceph
+  252  kubectl get pods -n ceph
+  253  kubectl describe pods -n ceph ceph-bootstrap-44sq5
+  254  kubectl logs -n ceph ceph-bootstrap-44sq5 -c init
+  255  kubectl get pods -n ceph
+  256  exit
+  257  curl http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+  258  watch kubectl get pods -n ceph
+  259  exit
+  260  watch kubectl get pods -n ceph
+  261  exit
+  262  watch kubectl get pods -n ceph
+  263  df -h
+  264  ./ceph.sh 
+  265  helm uninstall ceph-osd  --namespace=ceph 
+  266  helm uninstall ceph-mon  --namespace=ceph 
+  267  ./ceph.sh 
+  268  exit
+  269  watch kubectl get pods -n ceph
+  270  helm uninstall  ceph-provisioners      --namespace=ceph     --values=/tmp/ceph.yaml 
+  271  helm uninstall  ceph-provisioners      --namespace=ceph     
+  272  watch kubectl get pods -n ceph
+  273  helm uninstall  ceph-clients      --namespace=ceph     
+  274  helm uninstall  ceph-client      --namespace=ceph     
+  275  watch kubectl get pods -n ceph
+  276  ./ceph.sh 
+  277  helm uninstall  ceph-osd      --namespace=ceph     
+  278  helm uninstall  ceph-mon      --namespace=ceph     
+  279  /sbin/losetup --list
+  280  exit
+  281  history
+  282  history > hist

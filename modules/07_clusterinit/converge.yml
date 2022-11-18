@@ -1,0 +1,84 @@
+- name: setup master nodes
+  hosts: masternodes
+  tasks:
+    - name: Init Kubernetes cluster when cert does not exist
+      register: init
+      become: true
+      shell: |
+        kubeadm init --config /etc/kubernetes/init-config.yaml  \
+                      --ignore-preflight-errors=Port-6443
+      args:
+        chdir: /etc/kubernetes/pki/
+        creates: apiserver.crt
+      delegate_to: main01
+      run_once: true
+
+    - name: get node-config to adjust for other nodes
+      register: init
+      become: true
+      shell: |
+        kubectl get --kubeconfig /etc/kubernetes/admin.conf \
+          cm -n kube-system kubeadm-config \
+          -o=jsonpath="{.data.ClusterConfiguration}" > /etc/kubernetes/node-config.yaml
+      args:
+        chdir: /etc/kubernetes/
+        creates: node-config.yaml
+      delegate_to: main01
+      run_once: true
+
+    - name: find kubernetes config files
+      become: true
+      register: files
+      find:
+        paths:
+          - /etc/kubernetes/pki/etcd
+          - /etc/kubernetes/pki
+          - /etc/kubernetes/
+        patterns:
+          - "node-config.yaml"
+          - "admin.conf"
+          - "ca.*"
+          - "front-proxy-ca.*"
+          - "sa.*"
+        recurse: true
+      run_once: true
+      delegate_to: main01
+
+    - name: archive config
+      become: true
+      archive:
+        path: "{{ files.files  | map(attribute='path') | unique  }}"
+        dest: "/etc/kubernetes/k8s_config.tgz"
+      run_once: true
+      delegate_to: main01
+
+    - name: fetch archive from master one
+      fetch:
+        src: /etc/kubernetes/k8s_config.tgz
+        dest: "{{ playbook_dir }}/"
+        flat: true
+      run_once: true
+      delegate_to: main01
+    
+    - name: copy archive to nodes
+      unarchive:
+        src: k8s_config.tgz
+        dest: "{{ ansible_user_dir }}"
+      
+    - name: get join command
+      become: true
+      shell: |
+        kubeadm token create --print-join-command
+      register: join
+      delegate_to: main01
+      run_once: true
+
+    - name: output worker
+      debug:
+        msg: "{{ join.stdout }} --ignore-preflight-errors=Port-6443"
+      run_once: true
+
+    - name: output server
+      debug:
+        msg: "{{ join.stdout }} --control-plane --ignore-preflight-errors=Port-6443"
+      run_once: true
