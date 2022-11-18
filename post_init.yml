@@ -1,64 +1,24 @@
 ---
-- name: create admin client
+- name: prepare
   hosts: adminclient
   tasks:
-    #- include_tasks: tasks/kubernetes/k8s_binaries.yml
-    #- name: create config directory
-    #  file:
-    #    path: "{{ ansible_user_dir }}/.kube"
-    #    state: directory
-
-- name: move kubernetes files
-  hosts: all
-  tasks:
-    - name: find kubernetes config files
-      become: true
-      register: files
-      find:
-        paths:
-          - /etc/kubernetes/pki/etcd
-          - /etc/kubernetes/pki
-          - /etc/kubernetes/
-        patterns:
-          - "admin.conf"
-          - "ca.*"
-          - "front-proxy-ca.*"
-          - "sa.*"
-        recurse: true
-      run_once: true
-      delegate_to: main01
-
-    - name: archive config
-      become: true
-      archive:
-        path: "{{ files.files  | map(attribute='path') | unique  }}"
-        dest: "/etc/kubernetes/k8s_config.tgz"
-      run_once: true
-      delegate_to: main01
-
-    - name: fetch archive from master one
-      fetch:
-        src: /etc/kubernetes/k8s_config.tgz
-        dest: "{{ playbook_dir }}/"
-        flat: true
-      run_once: true
-      delegate_to: main01
-
-#- name: prepare
-#  hosts: adminclient
-#  tasks:
-#    - name: unarchive admin.conf
-#      unarchive:
-#        src: "{{ ansible_user_dir }}/.kube/k8s_config.tgz"
-#        dest: "{{ ansible_user_dir }}/.kube"
-#        owner: vagrant
-#        group: vagrant
-#        include: 
-#          - admin.conf
-#    - name: rename admin.conf
-#      copy:
-#        src: "{{ ansible_user_dir }}/.kube/admin.conf"
-#        dest: "{{ ansible_user_dir }}/.kube/config"
-#        owner: vagrant
-#        group: vagrant
-#        mode: 0700
+    - name: create config directory
+      file:
+        path: "{{ ansible_user_dir }}/.kube"
+        state: directory
+    - name: unarchive admin.conf
+      unarchive:
+        src: "modules/07_clusterinit/k8s_config.tgz"
+        dest: "{{ ansible_user_dir }}/.kube"
+        owner: vagrant
+        group: vagrant
+        include: 
+          - admin.conf
+    - name: rename admin.conf
+      copy:
+        src: "{{ ansible_user_dir }}/.kube/admin.conf"
+        dest: "{{ ansible_user_dir }}/.kube/config"
+        owner: vagrant
+        group: vagrant
+        mode: 0700
+        remote_src: true
