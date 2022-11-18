@@ -50,5 +50,6 @@
           192.168.60.12 main02 main02.local
           192.168.60.13 main03 main03.local
           192.168.60.21 worker01 worker01.local
-          192.168.60.22 worker02 worker01.local
+          192.168.60.22 worker02 worker02.local
+          192.168.60.23 worker03 worker03.local
   tags: dns
