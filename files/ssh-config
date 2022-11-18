@@ -48,6 +48,16 @@ Host worker02
   IdentitiesOnly yes
   LogLevel FATAL
 
+Host worker03
+  HostName 192.168.60.23
+  User vagrant
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  IdentityFile ~/Projects/kubernetes_lab/modules/01_vagrant_vms/.vagrant/machines/worker03/virtualbox/private_key
+  IdentitiesOnly yes
+  LogLevel FATAL
+
 Host registry
   HostName 192.168.60.9
   User vagrant

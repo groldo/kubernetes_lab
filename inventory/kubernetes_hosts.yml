@@ -12,7 +12,13 @@ all:
       ipv4address: 192.168.60.21
     worker02:
       ipv4address: 192.168.60.22
+    worker03:
+      ipv4address: 192.168.60.23
   children:
+    bootstrap:
+    # first master node to initialize
+      hosts:
+        main01:
     kubernetes:
       children:
         masternodes:
@@ -24,6 +30,7 @@ all:
           hosts:
             worker01:
             worker02:
+            worker03:
     adminclient:
       hosts:
         main01:
@@ -59,12 +66,3 @@ all:
       - 'k8s.gcr.io/etcd:{{ all_kubernetes__etcd_version }}'
       - 'k8s.gcr.io/coredns/coredns:v{{ all_kubernetes__coredns_version }}'
       - 'busybox:1.30'
-      - 'calico/node:v3.21.2'
-      - 'calico/pod2daemon-flexvol:v3.21.2'
-      - 'calico/cni:v3.21.2'
-      - 'calico/kube-controllers:v3.21.2'
-      - 'quay.io/coreos/flannel:v0.13.0'
-      - 'kubernetesui/dashboard:v2.0.0'
-      - 'kubernetesui/metrics-scraper:v1.0.4'
-      - 'weaveworks/weave-kube:2.8.1'
-      - 'weaveworks/weave-npc:2.8.1'
