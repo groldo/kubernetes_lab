@@ -45,16 +45,6 @@ ansible-playbook -i inventory/kubernetes_hosts.yml post_init.yml
 
 Have a look at [join_master_nodes](docs/join_master_nodes.md)
 
-### join workernodes
-
-```bash
-ssh workerone
-sudo kubeadm join 192.168.60.253:6443 \
-    --token abcdef.0123456789abcdef \
-    --discovery-token-ca-cert-hash sha256:1c39a88bd2df11fb639b8a8d42e4c47a03cb5b024b380f86814a8d230b26dede
-# adjust to your join command
-```
-
 ### finalize cluster with network
 
 ```bash
@@ -62,5 +52,4 @@ kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.1/aio/deploy/recommended.yaml
 kubectl get pods -n kube-system -w
 # watch pods as they go up
-
 ```
