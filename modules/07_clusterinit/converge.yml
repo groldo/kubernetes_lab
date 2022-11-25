@@ -1,5 +1,6 @@
+---
 - name: setup master nodes
-  hosts: masternodes
+  hosts: all
   tasks:
     - name: Init Kubernetes cluster when cert does not exist
       register: init
@@ -61,9 +62,11 @@
       delegate_to: main01
     
     - name: copy archive to nodes
+      become: true
       unarchive:
         src: k8s_config.tgz
-        dest: "{{ ansible_user_dir }}"
+        dest: "/etc/kubernetes/"
+      when: "'masternodes' in group_names"
       
     - name: get join command
       become: true
@@ -73,12 +76,36 @@
       delegate_to: main01
       run_once: true
 
+    - name: Join master nodes
+      register: init
+      become: true
+      shell: "{{ join.stdout }} --control-plane --ignore-preflight-errors=Port-6443"
+      args:
+        chdir: /etc/kubernetes/
+        creates: kubelet.conf
+      when: "'masternodes' in group_names"
+
+    - name: Join worker nodes
+      register: init
+      become: true
+      shell: "{{ join.stdout }}"
+      args:
+        chdir: /etc/kubernetes/
+        creates: kubelet.conf
+      when: "'workernodes' in group_names"
+
     - name: output worker
       debug:
-        msg: "{{ join.stdout }} --ignore-preflight-errors=Port-6443"
+        msg: |
+         To join further worker run the following command when ssh'd into the worker
+
+          sudo {{ join.stdout }}
       run_once: true
 
     - name: output server
       debug:
-        msg: "{{ join.stdout }} --control-plane --ignore-preflight-errors=Port-6443"
+        msg: |
+         To join further worker run the following command when ssh'd into the worker
+
+          sudo {{ join.stdout }} --control-plane --ignore-preflight-errors=Port-6443"
       run_once: true
