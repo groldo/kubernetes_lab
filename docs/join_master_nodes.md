@@ -23,7 +23,7 @@ adjust `bind-address: 192.168.60.11` to the ip address of the new master node e.
 copy `node-config.yaml` to the node and run
 
 ```bash
-sudo kubeadm init phase control-plane apiserver --config node-config.yaml
+sudo kubeadm init phase control-plane apiserver --config /etc/kubernetes/node-config.yaml
 ```
 
 ### Whats the problem?
