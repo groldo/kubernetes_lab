@@ -1,3 +1,9 @@
+# openstack
+
+try with openstack
+up to now not functional
+
+```bash
 # prepare master nodes for workload
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/#control-plane-node-isolation
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
@@ -39,18 +45,25 @@ OSH_DEPLOY_MULTINODE=True ./tools/deployment/component/common/ingress.sh
 ./tools/deployment/multinode/140-compute-kit.sh
 ./tools/deployment/multinode/150-heat.sh
 ./tools/deployment/multinode/160-barbican.sh
+```
 
+fails when
 
+```bash
+./tools/deployment/multinode/100-glance.sh
+```
 
-scp modules/openstack/ceph-lo.sh main01:
-scp modules/openstack/ceph-lo.sh main02:
-scp modules/openstack/ceph-lo.sh main03:
+## notes
 
-scp modules/openstack/ceph-lo.sh worker01:
-scp modules/openstack/ceph-lo.sh worker02:
-scp modules/openstack/ceph-lo.sh worker03:
-ssh worker01
-chmod +x ceph-lo.sh
-./ceph-lo.sh --ceph-osd-data /dev/loop8 --ceph-osd-dbwal /dev/loop9
+the openstack-helm project automatically assigns all nodes which gets labeled with `ceph-enabled` as ceph nodes.
+So you need to adjust which nodes shall have this label.
+ceph will check if a node which should be `ceph-enabled` is not a working ceph node.
+This will cause trouble when you you don't assign your master nodes to have worker load.
 
+### troubleshooting ceph
+
+```
 kubectl exec -n ceph ceph-mon-default-37207810-7q6w4 -- ceph -s
+kubectl exec -n ceph -it ceph-mon-default-37207810-7q6w4 -- ceph
+```
+
