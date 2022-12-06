@@ -3,8 +3,11 @@
 
 require 'yaml'
 server          = ["main01", "main02", "main03", "worker01", "worker02", "worker03", "registry"]
-box             = "bento/ubuntu-22.04"
-vm_memory       = 4096
+box               = "bento/ubuntu-22.04"
+vm_memory         = 2048
+vm_cpus           = 2
+vm_main_memory    = 4096
+vm_main_cpus      = 4
 
 $docker_install = <<SCRIPT
 echo "Installing Docker..."
@@ -50,33 +53,46 @@ Vagrant.configure("2") do |config|
       machine.vm.box = box
       machine.vm.hostname = host
 
-      # https://sleeplessbeastie.eu/2021/05/10/how-to-define-multiple-disks-inside-vagrant-using-virtualbox-provider/
-      machine.vm.disk :disk, size: "5GB", name: "ceph"
 
       # ip config
       if host.match(/main/)
+        machine.vm.provider "virtualbox" do |v|
+          v.memory = vm_main_memory
+          v.cpus = vm_main_cpus
+        end
+        # https://sleeplessbeastie.eu/2021/05/10/how-to-define-multiple-disks-inside-vagrant-using-virtualbox-provider/
+        machine.vm.disk :disk, size: "100GB", name: "ceph"
         machine.vm.network "private_network", ip: "192.168.60.1#{serverip}"
         serverip += 1
       end
+
       if host.match(/worker/)
+        machine.vm.provider "virtualbox" do |v|
+          v.memory = vm_memory
+          v.cpus = vm_cpus
+        end
         machine.vm.network "private_network", ip: "192.168.60.2#{workerip}"
         workerip += 1
       end
+
       if host.match(/registry/)
+        machine.vm.provider "virtualbox" do |v|
+          v.memory = vm_memory
+          v.cpus = vm_cpus
+        end
         machine.vm.network "private_network", ip: "192.168.60.9"
       end
 
       # virtualbox config
       machine.vm.provider :virtualbox do |vb|
         vb.gui = false
-        vb.memory = vm_memory
         vb.customize ["modifyvm", :id, "--accelerate3d", "off"]
         vb.customize ["modifyvm", :id, "--vrde", "off"]
       end
 
       # Increase memory for VMware
       ["vmware_fusion", "vmware_workstation"].each do |p|
-        config.vm.provider p do |v|
+        machine.vm.provider p do |v|
           v.vmx["memsize"] = vm_memory
         end
       end
