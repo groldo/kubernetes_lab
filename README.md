@@ -10,14 +10,7 @@ For more information regarding troubleshooting, learnings and so on see
 
 ## Usage
 
-### create virtual machines
-
-```bash
-cd modules/01_vagrant_vms
-vagrant up --color --provision --provider virtualbox
-```
-
-### setup ssh for ansible
+### setup local machine
 
 ```bash
 python3 -m venv .venv
@@ -29,16 +22,10 @@ cat files/ssh-config >> ~/.ssh/config
 ansible -m ping -i inventory/kubernetes_hosts.yml kubernetes
 ```
 
+### install kubernetes
+
 ```bash
-ansible-playbook -i inventory/kubernetes_hosts.yml modules/02_networking/converge.yml
-ansible-playbook -i inventory/kubernetes_hosts.yml modules/03_certs/converge.yml
-# copy the created certs folder in  modules/03_certs to modules/04_registry, modules/05_containerd and modules/06_kubernetes
-ansible-playbook -i inventory/kubernetes_hosts.yml modules/04_registry/converge.yml
-ansible-playbook -i inventory/kubernetes_hosts.yml modules/05_containerd/converge.yml
-ansible-playbook -i inventory/kubernetes_hosts.yml modules/06_kubernetes/converge.yml
-ansible-playbook -i inventory/kubernetes_hosts.yml modules/07_clusterinit/converge.yml
-# fetch `admin.conf` and certificates from `main01` and pushs it to the `adminclient`.
-ansible-playbook -i inventory/kubernetes_hosts.yml post_init.yml
+./install.sh
 ```
 
 ### join further master nodes
@@ -52,4 +39,10 @@ kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.1/aio/deploy/recommended.yaml
 kubectl get pods -n kube-system -w
 # watch pods as they go up
+```
+
+### cleanup
+
+```bash
+./destroy.sh
 ```
