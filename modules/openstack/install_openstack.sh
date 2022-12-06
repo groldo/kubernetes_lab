@@ -10,7 +10,6 @@ wget https://get.helm.sh/helm-v3.10.2-linux-amd64.tar.gz
 tar xf helm-v3.10.2-linux-amd64.tar.gz
 sudo mv linux-amd64/helm /usr/local/bin/
 rm -rf helm-v3.10.2-linux-amd64.tar.gz linux-amd64/
-
 # clone repos
 git clone https://opendev.org/openstack/openstack-helm-infra.git
 git clone https://opendev.org/openstack/openstack-helm.git
