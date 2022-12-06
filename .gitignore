@@ -2,3 +2,5 @@ roles/*
 !roles/requirements.yml
 .venv
 .vagrant
+certs
+k8s_config.tgz
