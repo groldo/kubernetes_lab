@@ -11,3 +11,9 @@ sudo apt update && sudo apt install bash-completion
 source <(kubectl completion bash)
 kubectl <TAB>
 ```
+
+# get all available storage classes
+
+```bash
+kubectl get storageclass
+```
