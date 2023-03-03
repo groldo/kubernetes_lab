@@ -1,0 +1,11 @@
+---
+- name: setup master nodes
+  hosts: main01
+  tasks:
+    - unarchive:
+        src: https://get.helm.sh/helm-v3.10.2-linux-amd64.tar.gz
+        dest: "{{ ansible_user_dir }}"
+        remote_src: true
+    - command: mv {{ ansible_user_dir}}/linux-amd64/helm /usr/local/bin/
+      become: true
+    - command: rm -rf {{ ansible_user_dir}}/helm-v3.10.2-linux-amd64.tar.gz {{ ansible_user_dir}}/linux-amd64/
