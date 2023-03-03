@@ -1,0 +1,44 @@
+---
+- name: setup master nodes
+  hosts: main01
+  tasks:
+    - command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+      failed_when: false
+    - command: kubectl taint nodes --all node-role.kubernetes.io/master:NoSchedule-
+      failed_when: false
+    - become: true
+      apt:
+        pkg:
+          - python3-dev 
+          - git 
+          - curl
+          - make 
+          - build-essential 
+          - libssl-dev 
+          - libffi-dev 
+          - jq
+    - git:
+        repo: https://opendev.org/openstack/openstack-helm-infra.git 
+        dest: "{{ ansible_user_dir }}/openstack-helm-infra"
+    - git:
+        repo: https://opendev.org/openstack/openstack-helm.git 
+        dest: "{{ ansible_user_dir }}/openstack-helm"
+    - copy:
+        src: "{{ item }}"
+        dest: "{{ ansible_user_dir }}"
+        mode: "0744"
+      loop:
+        - label_nodes.sh
+    - become: true
+      blockinfile:
+        path: /etc/hosts
+        block: |
+          192.168.60.253 keystone.openstack.svc.cluster.local
+          192.168.60.253 glance.openstack.svc.cluster.local
+          192.168.60.253 cinder.openstack.svc.cluster.local
+    - copy:
+        src: "{{ item }}"
+        dest: "{{ ansible_user_dir }}/openstack-helm/"
+        mode: "0744"
+      loop:
+        - deploy-ceph.sh
