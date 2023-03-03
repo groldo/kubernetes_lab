@@ -72,6 +72,7 @@ Vagrant.configure("2") do |config|
           v.cpus = vm_cpus
         end
         machine.vm.network "private_network", ip: "192.168.60.2#{workerip}"
+        machine.vm.disk :disk, size: "100GB", name: "ceph"
         workerip += 1
       end
 
