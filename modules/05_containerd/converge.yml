@@ -1,6 +1,10 @@
 ---
 - name: install containerd
   hosts: kubernetes
+  vars:
+    containerd_release_version: 1.6.2
+    cni_bin_dir: /opt/cni/bin/
+    cni_conf_dir: /etc/cni/net.d/
   handlers:
     - name: restart containerd
       become: true
@@ -11,17 +15,37 @@
         enabled: true
 
   tasks:
-    - name: install containerd
+    - name: Install containerd requirements
       become: true
-      apt:
-        pkg:
-          - containerd
+      package:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+          - unzip
+          - tar
+          - apt-transport-https
+          - btrfs-progs
+          - libseccomp2
+          - util-linux
 
-    - name: set containerd binary on hold
+    - name: "Get Containerd"
       become: true
-      dpkg_selections:
-        name: "containerd"
-        selection: hold
+      unarchive:
+        src: "https://github.com/containerd/containerd/releases/download/v{{ containerd_release_version }}/cri-containerd-cni-{{ containerd_release_version }}-linux-amd64.tar.gz"
+        dest: "/"
+        remote_src: yes
+
+    - name: "Create a directory for cni binary"
+      become: true
+      file: path={{ cni_bin_dir }} state=directory
+
+    - name: "Create a directory for cni config files"
+      become: true
+      file: path={{ cni_conf_dir }} state=directory
+
+    - name: "Create a directory for containerd config"
+      become: true
+      file: path=/etc/containerd state=directory
 
     - name: Create directories for containerd config
       become: true
