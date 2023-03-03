@@ -94,6 +94,19 @@
         creates: kubelet.conf
       when: "'workernodes' in group_names"
 
+    - name: replace bind-address for main nodes
+      become: true
+      lineinfile:
+        path: /etc/kubernetes/node-config.yaml
+        regexp: "    bind-address: 192.168.60.11"
+        line: "    bind-address: {{ ipv4address }}"
+      when: "'masternodes' in group_names"
+
+    - name: replace bind-address for main nodes
+      become: true
+      command: kubeadm init phase control-plane apiserver --config /etc/kubernetes/node-config.yaml
+      when: "'masternodes' in group_names"
+
     - name: output worker
       debug:
         msg: |
