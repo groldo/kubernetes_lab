@@ -1,0 +1,25 @@
+---
+- name: setup master nodes
+  hosts: main01
+  tasks:
+    - command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+      failed_when: false
+    - command: kubectl taint nodes --all node-role.kubernetes.io/master:NoSchedule-
+      failed_when: false
+    - git:
+        repo: https://github.com/rook/rook.git 
+        dest: "{{ ansible_user_dir }}/rook"
+        single_branch: true
+        version: v1.10.6
+    - command: |
+        kubectl create -f {{ ansible_user_dir }}/rook/deploy/examples/{{ item }}
+      loop:
+        - crds.yaml
+        - common.yaml
+        - operator.yaml
+      failed_when: false
+    - command: |
+        kubectl create -f {{ ansible_user_dir }}/rook/deploy/examples/{{ item }}
+      loop:
+        - cluster.yaml
+      failed_when: false
